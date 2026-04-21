@@ -2,7 +2,7 @@ const app = require("./app");
 const { port } = require("./config/env");
 const { connectDatabase, sequelize } = require("./config/database");
 const { initModels } = require("./models");
-const { init } = require("next/dist/compiled/webpack/webpack");
+
 
 let server;
 
