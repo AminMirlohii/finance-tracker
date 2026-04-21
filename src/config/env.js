@@ -5,7 +5,7 @@ const dotenv = require("dotenv"); // imports dotenv library
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 
-const requiredVars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"];
+const requiredVars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD", "JWT_SECRET"];
 
 for (const key of requiredVars) {
     if (!process.env[key]) {
@@ -22,5 +22,9 @@ module.exports = {
         name: process.env.DB_NAME,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
+    },
+    auth: {
+        jwtSecret: process.env.JWT_SECRET,
+        jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1d",
     },
 };

@@ -1,11 +1,14 @@
 const app = require("./app");
 const { port } = require("./config/env");
 const { connectDatabase, sequelize } = require("./config/database");
+const { initModels } = require("./models");
+const { init } = require("next/dist/compiled/webpack/webpack");
 
 let server;
 
 async function startServer() {
     await connectDatabase();
+    await initModels();
 
     server = app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
