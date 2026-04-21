@@ -1,0 +1,26 @@
+const path = require("path"); // imports Node's built-in path module
+
+const dotenv = require("dotenv"); // imports dotenv library
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+
+
+const requiredVars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"];
+
+for (const key of requiredVars) {
+    if (!process.env[key]) {
+        throw new Error(`Missing required environment variable: ${key}`);
+    }
+}
+
+module.exports = {
+    env: process.env.NODE_ENV || "development",
+    port: Number(process.env.PORT) || 4000,
+    database: {
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        name: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+    },
+};
