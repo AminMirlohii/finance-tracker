@@ -2,7 +2,10 @@ const path = require("path"); // imports Node's built-in path module
 
 const dotenv = require("dotenv"); // imports dotenv library
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+const nodeEnv = process.env.NODE_ENV || "development";
+const envFile = nodeEnv === "test" ? ".env.test" : ".env";
+
+dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 
 const requiredVars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD", "JWT_SECRET"];
@@ -14,7 +17,7 @@ for (const key of requiredVars) {
 }
 
 module.exports = {
-    env: process.env.NODE_ENV || "development",
+    env: nodeEnv,
     port: Number(process.env.PORT) || 4000,
     database: {
         host: process.env.DB_HOST,

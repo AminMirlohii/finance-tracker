@@ -5,7 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon -L --watch src --ext js,json src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "NODE_ENV=test jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,8 @@
     "sequelize": "^6.37.8"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "jest": "^30.3.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   }
 }
