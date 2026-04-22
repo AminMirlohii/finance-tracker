@@ -25,7 +25,7 @@ export default function RegisterScreen({ navigation }) {
                 errorMessage={errorMessage}
             />
 
-            <Pressable style={styles.linkContainer} onPress={() => navigation.navigate("Login")}>
+            <Pressable style={styles.linkContainer} onPress={() => navigation.goBack()}>
                 <Text style={styles.linkText}>Already have an account? Sign in</Text>
             </Pressable>
         </View>
