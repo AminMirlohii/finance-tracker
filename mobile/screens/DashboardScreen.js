@@ -1,14 +1,19 @@
+import { useContext } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
+import { AuthContext } from "../context/AuthContext";
 
-export default function DashboardScreen({ navigation }) {
+export default function DashboardScreen() {
+    const { user, logout } = useContext(AuthContext);
+
     return (
         <View style={styles.screen}>
             <Text style={styles.title}>Dashboard</Text>
             <Text style={styles.subtitle}>Welcome to your own personal finance tracker app!</Text>
+            {user?.email ? <Text style={styles.subtitle}>Logged in as {user.email}</Text> : null}
             <Text style={styles.subtitle}>This is a placeholder dashhoard screen.</Text>
 
             <View style={styles.buttonWrapper}>
-                <Button title="Log out" onPress={() => navigation.navigate("Login")} />
+                <Button title="Log Out" onPress={logout} />
             </View>
         </View>
     );
