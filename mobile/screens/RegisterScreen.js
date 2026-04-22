@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import AuthForm from "../components/AuthForm";
-import { register } from "../services/api";
+import { AuthContext } from "../context/AuthContext";
 
 export default function RegisterScreen({ navigation }) {
     const [errorMessage, setErrorMessage] = useState("");
+    const { register } = useContext(AuthContext);
 
     async function handleRegister(payload) {
         try {
             setErrorMessage("");
             await register(payload);
-            navigation.navigate("Dashboard");
         } catch (_error) {
             setErrorMessage("Registration failed. Try a different email!");
         }
