@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import AuthForm from "../components/AuthForm";
-import { login } from "../services/api";
+import { AuthContext } from "../context/AuthContext";
 
 
 export default function LoginScreen({ navigation }) {
     const [errorMessage, setErrorMessage] = useState("");
+    const { login } = useContext(AuthContext);
 
     async function handleLogin(payload) {
         try {
             setErrorMessage("");
             await login(payload);
-            navigation.navigate("Dashboard");
         } catch (_error) {
             setErrorMessage("Login failed. Try again!");
         }
