@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AddTransactionForm from "../components/AddTransactionForm";
+import ExpensePieChart from "../components/ExpensePieChart";
 import TransactionList from "../components/TransactionList";
 import { AuthContext } from "../context/AuthContext";
 import { deleteTransaction, getAnalyticsSummary, getTransactions } from "../services/api";
@@ -105,6 +106,16 @@ export default function DashboardScreen() {
     const totalsPerCategory = Array.isArray(summary?.totalsPerCategory)
         ? summary.totalsPerCategory
         : [];
+    const expenseCategoryData = Object.values(
+        transactions
+            .filter((item) => item.type === "expense")
+            .reduce((acc, item) => {
+                const current = acc[item.category] || { category: item.category, total: 0 };
+                current.total += Number(item.amount || 0);
+                acc[item.category] = current;
+                return acc;
+            }, {})
+    ).sort((a, b) => b.total - a.total);
 
     function asCurrency(value) {
         return Number(value).toFixed(2);
@@ -145,6 +156,11 @@ export default function DashboardScreen() {
                                 {asCurrency(Math.abs(balance))}
                             </Text>
                         </Animated.View>
+
+                        <View style={styles.summaryCard}>
+                            <Text style={styles.summaryTitle}>Expense distribution</Text>
+                            <ExpensePieChart items={expenseCategoryData} />
+                        </View>
 
                         <View style={styles.summaryCard}>
                             <Text style={styles.summaryTitle}>Category breakdown</Text>
