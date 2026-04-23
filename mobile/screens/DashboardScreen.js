@@ -9,6 +9,7 @@ import {
     Text,
     View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AddTransactionForm from "../components/AddTransactionForm";
 import TransactionList from "../components/TransactionList";
 import { AuthContext } from "../context/AuthContext";
@@ -110,98 +111,106 @@ export default function DashboardScreen() {
     }
 
     return (
-        <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.content}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadAll(true)} />}
-        >
-            <Text style={styles.title}>Dashboard</Text>
-            <Text style={styles.subtitle}>Welcome to your Personal Finance App.</Text>
-            {user?.email ? <Text style={styles.subtitle}>Logged in as {user.email}</Text> : null}
+        <SafeAreaView style={styles.safeArea}>
+            <ScrollView
+                style={styles.scroll}
+                contentContainerStyle={styles.content}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadAll(true)} />}
+            >
+                <Text style={styles.title}>Dashboard</Text>
+                <Text style={styles.subtitle}>Welcome to your Personal Finance App.</Text>
+                {user?.email ? <Text style={styles.subtitle}>Logged in as {user.email}</Text> : null}
 
-            {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+                {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
 
-            {loading ? (
-                <View style={styles.centered}>
-                    <ActivityIndicator size="large" />
-                    <Text style={styles.muted}>Loading…</Text>
-                </View>
-            ) : (
-                <>
-                    <Animated.View
-                        style={[
-                            styles.summaryCard,
-                            { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
-                        ]}
-                    >
-                        <Text style={styles.summaryTitle}>Summary</Text>
-                        <Text style={styles.summaryLine}>Total income: {asCurrency(income)}</Text>
-                        <Text style={styles.summaryLine}>Total expenses: {asCurrency(expenses)}</Text>
-                        <Text style={styles.balanceLabel}>Current balance</Text>
-                        <Text style={styles.balanceValue}>{asCurrency(balance)}</Text>
-                    </Animated.View>
-
-                    <View style={styles.summaryCard}>
-                        <Text style={styles.summaryTitle}>Category breakdown</Text>
-                        {totalsPerCategory.length ? (
-                            totalsPerCategory.map((item) => (
-                                <View key={item.category} style={styles.categoryRow}>
-                                    <Text style={styles.categoryName}>{item.category}</Text>
-                                    <Text style={styles.categoryValue}>{asCurrency(item.total)}</Text>
-                                </View>
-                            ))
-                        ) : (
-                            <Text style={styles.muted}>No category totals yet.</Text>
-                        )}
+                {loading ? (
+                    <View style={styles.centered}>
+                        <ActivityIndicator size="large" />
+                        <Text style={styles.muted}>Loading…</Text>
                     </View>
+                ) : (
+                    <>
+                        <Animated.View
+                            style={[
+                                styles.summaryCard,
+                                { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
+                            ]}
+                        >
+                            <Text style={styles.summaryTitle}>Summary</Text>
+                            <Text style={styles.summaryLine}>Total income: {asCurrency(income)}</Text>
+                            <Text style={styles.summaryLine}>Total expenses: {asCurrency(expenses)}</Text>
+                            <Text style={styles.balanceLabel}>Current balance</Text>
+                            <Text style={styles.balanceValue}>{asCurrency(balance)}</Text>
+                        </Animated.View>
 
-                    <AddTransactionForm
-                        onSuccess={handleAfterSave}
-                        editingTransaction={editingTransaction}
-                        onCancelEdit={handleCancelEdit}
-                    />
+                        <View style={styles.summaryCard}>
+                            <Text style={styles.summaryTitle}>Category breakdown</Text>
+                            {totalsPerCategory.length ? (
+                                totalsPerCategory.map((item) => (
+                                    <View key={item.category} style={styles.categoryRow}>
+                                        <Text style={styles.categoryName}>{item.category}</Text>
+                                        <Text style={styles.categoryValue}>{asCurrency(item.total)}</Text>
+                                    </View>
+                                ))
+                            ) : (
+                                <Text style={styles.muted}>No category totals yet.</Text>
+                            )}
+                        </View>
 
-                    <TransactionList
-                        transactions={transactions}
-                        onDelete={handleDelete}
-                        onEdit={handleEdit}
-                        busy={mutationBusy}
-                    />
-                </>
-            )}
+                        <AddTransactionForm
+                            onSuccess={handleAfterSave}
+                            editingTransaction={editingTransaction}
+                            onCancelEdit={handleCancelEdit}
+                        />
 
-            <View style={styles.buttonWrapper}>
-                <Button title="Log Out" onPress={logout} />
-            </View>
-        </ScrollView>
+                        <TransactionList
+                            transactions={transactions}
+                            onDelete={handleDelete}
+                            onEdit={handleEdit}
+                            busy={mutationBusy}
+                        />
+                    </>
+                )}
+
+                <View style={styles.buttonWrapper}>
+                    <Button title="Log Out" onPress={logout} />
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: "#0B0F14",
+    },
     scroll: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "#0B0F14",
     },
     content: {
-        padding: 20,
+        paddingHorizontal: 18,
+        paddingTop: 8,
         paddingBottom: 40,
     },
     title: {
-        fontSize: 28,
+        fontSize: 32,
         fontWeight: "700",
-        marginBottom: 8,
+        color: "#F5F7FA",
+        marginBottom: 10,
     },
     subtitle: {
-        fontSize: 16,
-        color: "#555",
+        fontSize: 14,
+        color: "#9AA4B2",
         marginBottom: 6,
     },
     error: {
-        color: "#b00020",
+        color: "#FF6B6B",
         marginVertical: 8,
     },
     muted: {
-        color: "#666",
+        color: "#9AA4B2",
         marginTop: 8,
     },
     centered: {
@@ -210,47 +219,51 @@ const styles = StyleSheet.create({
     },
     summaryCard: {
         width: "100%",
-        padding: 12,
+        padding: 14,
         borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 8,
-        marginBottom: 16,
+        borderColor: "#263241",
+        borderRadius: 12,
+        marginBottom: 14,
+        backgroundColor: "#141B23",
     },
     summaryTitle: {
         fontSize: 16,
         fontWeight: "600",
+        color: "#F5F7FA",
         marginBottom: 8,
     },
     summaryLine: {
-        fontSize: 15,
-        marginBottom: 4,
+        fontSize: 14,
+        color: "#D3DAE3",
+        marginBottom: 6,
     },
     balanceLabel: {
         marginTop: 8,
-        fontSize: 13,
-        color: "#666",
+        fontSize: 12,
+        color: "#9AA4B2",
     },
     balanceValue: {
-        fontSize: 30,
+        fontSize: 34,
         fontWeight: "700",
-        color: "#1e64d9",
+        color: "#F5F7FA",
         marginTop: 2,
     },
     categoryRow: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingVertical: 6,
+        paddingVertical: 8,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#ddd",
+        borderBottomColor: "#263241",
     },
     categoryName: {
         fontSize: 14,
-        color: "#333",
+        color: "#D3DAE3",
     },
     categoryValue: {
         fontSize: 14,
         fontWeight: "600",
+        color: "#F5F7FA",
     },
     buttonWrapper: {
         marginTop: 16,
