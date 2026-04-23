@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
         color: "#F5F7FA",
         fontWeight: "700",
         fontSize: 24,
-        lineHeight: 36,
+        lineHeight: 28,
     },
     centerLabel: {
         color: "#9AA4B2",

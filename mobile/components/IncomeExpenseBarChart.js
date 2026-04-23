@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Line, Rect } from "react-native-svg";
 
@@ -9,18 +10,29 @@ const BAR_WIDTH = 64;
 const AXIS_BOTTOM = HEIGHT - PADDING_BOTTOM;
 
 export default function IncomeExpenseBarChart({ income, expenses }) {
+    const [chartWidth, setChartWidth] = useState(280);
     const maxValue = Math.max(1, income, expenses);
     const chartHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM;
     const incomeHeight = (income / maxValue) * chartHeight;
     const expensesHeight = (expenses / maxValue) * chartHeight;
+    const width = Math.max(220, chartWidth);
 
-    const incomeX = 52;
-    const expensesX = 164;
+    const incomeX = width * 0.22;;
+    const expensesX = width * 0.58;
 
     return (
-        <View style={styles.wrap}>
-            <Svg width={WIDTH} height={HEIGHT}>
-                <Line x1="24" y1={AXIS_BOTTOM} x2={WIDTH - 20} y2={AXIS_BOTTOM} stroke="#2A3648" strokeWidth="1.2" />
+        <View
+            style={styles.wrap}
+            onLayout={(event) => {
+                const { width: nextWidth } = event.nativeEvent.layout;
+                const candidate = nextWidth - 8;
+                if (candidate && Number.isFinite(candidate) && Math.abs(candidate - chartWidth) > 1) {
+                    setChartWidth(candidate);
+                }
+            }}
+        >
+            <Svg width={width} height={HEIGHT}>
+                <Line x1="24" y1={AXIS_BOTTOM} x2={width - 20} y2={AXIS_BOTTOM} stroke="#2A3648" strokeWidth="1.2" />
 
                 <Rect
                     x={incomeX}

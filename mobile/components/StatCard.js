@@ -16,7 +16,7 @@ export default function StatCard({ title, value, accent = "neutral", subtitle })
 const styles = StyleSheet.create({
     card: {
         flex: 1,
-        minWidth: 100,
+        minWidth: 0,
         paddingVertical: 12,
         paddingHorizontal: 12,
         borderWidth: 1,
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
         fontWeight: "500",
     },
     value: {
-        fontSize: 34,
+        fontSize: 24,
         fontWeight: "700",
         letterSpacing: 0.2,
     },

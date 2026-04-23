@@ -16,11 +16,12 @@ import IncomeExpenseBarChart from "../components/IncomeExpenseBarChart";
 import StatCard from "../components/StatCard";
 import TransactionList from "../components/TransactionList";
 import { AuthContext } from "../context/AuthContext";
-import { deleteTransaction, getAnalyticsSummary, getTransactions } from "../services/api";
+import { deleteTransaction, getAnalyticsInsights, getAnalyticsSummary, getTransactions } from "../services/api";
 
 export default function DashboardScreen() {
     const { user, logout } = useContext(AuthContext);
     const [summary, setSummary] = useState(null);
+    const [insights, setInsights] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -38,8 +39,13 @@ export default function DashboardScreen() {
                 setLoading(true);
             }
             setErrorMessage("");
-            const [summaryRes, txRes] = await Promise.all([getAnalyticsSummary(), getTransactions()]);
+            const [summaryRes, insightsRes, txRes] = await Promise.all([
+                getAnalyticsSummary(),
+                getAnalyticsInsights(),
+                getTransactions(),
+            ]);
             setSummary(summaryRes.summary || null);
+            setInsights(insightsRes.insights || null);
             setTransactions(txRes.transactions || []);
         } catch (error) {
             const msg = error?.response?.data?.message || error?.message || "Failed to load data.";
@@ -108,6 +114,14 @@ export default function DashboardScreen() {
     const totalsPerCategory = Array.isArray(summary?.totalsPerCategory)
         ? summary.totalsPerCategory
         : [];
+    const monthlyTrend = Array.isArray(insights?.monthlyTrend) ? insights.monthlyTrend : [];
+    const recentMonthlyTrend = monthlyTrend.slice(-4).map((item) => ({
+        month: item.month,
+        total: Number(item.total || 0),
+    }));
+    const topSpendingCategory = insights?.topSpendingCategory || null;
+    const predictedNextMonthSpending = Number(insights?.predictedNextMonthSpending || 0);
+    const unusualTransactions = Array.isArray(insights?.unusualTransactions) ? insights.unusualTransactions : [];
     const expenseCategoryData = Object.values(
         transactions
             .filter((item) => item.type === "expense")
@@ -151,24 +165,30 @@ export default function DashboardScreen() {
                 ) : (
                     <>
                         <View style={styles.statsRow}>
-                            <StatCard title="Total income" value={`$${asCurrency(income)}`} accent="positive" subtitle="Income" />
-                            <StatCard title="Total expenses" value={`$${asCurrency(expenses)}`} accent="negative" subtitle="Expense" />
-                            <StatCard
-                                title="Balance"
-                                value={`${balance >= 0 ? "+" : "-"}$${asCurrency(Math.abs(balance))}`}
-                                accent={balance >= 0 ? "positive" : "negative"}
-                                subtitle="Current"
-                            />
+                            <View style={styles.statItem}>
+                                <StatCard title="Total income" value={`$${asCurrency(income)}`} accent="positive" subtitle="Income" />
+                            </View>
+                            <View style={styles.statItem}>
+                                <StatCard title="Total expenses" value={`$${asCurrency(expenses)}`} accent="negative" subtitle="Expense" />
+                            </View>
+                            <View style={styles.statItem}>
+                                <StatCard
+                                    title="Balance"
+                                    value={`${balance >= 0 ? "+" : "-"}$${asCurrency(Math.abs(balance))}`}
+                                    accent={balance >= 0 ? "positive" : "negative"}
+                                    subtitle="Current"
+                                />
+                            </View>
                         </View>
 
-                        <View style={styles.analyticsRow}>
+                        <View style={styles.analyticsColumn}>
                             <View style={[styles.summaryCard, styles.analyticsCard]}>
                                 <Text style={styles.summaryTitle}>Expenses by category</Text>
                                 <ExpensePieChart items={expenseCategoryData} />
                             </View>
 
                             <View style={[styles.summaryCard, styles.analyticsCard]}>
-                                <Text style={styles.summaryTitle}>Monthly trend</Text>
+                                <Text style={styles.summaryTitle}>Income vs expenses</Text>
                                 <IncomeExpenseBarChart income={Number(income)} expenses={Number(expenses)} />
                             </View>
                         </View>
@@ -188,6 +208,48 @@ export default function DashboardScreen() {
                                 {asCurrency(Math.abs(balance))}
                             </Text>
                         </Animated.View>
+
+                        <View style={styles.summaryCard}>
+                            <Text style={styles.summaryTitle}>Insights</Text>
+                            <Text style={styles.summaryLine}>
+                                Top spending category:{" "}
+                                <Text style={styles.categoryValue}>
+                                    {topSpendingCategory
+                                        ? `${topSpendingCategory.category} (${asCurrency(topSpendingCategory.total)})`
+                                        : "Not enough data"}
+                                </Text>
+                            </Text>
+                            <Text style={styles.summaryLine}>
+                                Predicted next month spending:{" "}
+                                <Text style={styles.expenseText}>${asCurrency(predictedNextMonthSpending)}</Text>
+                            </Text>
+                            <Text style={styles.summaryLine}>
+                                Unusual transactions detected:{" "}
+                                <Text style={styles.categoryValue}>{unusualTransactions.length}</Text>
+                            </Text>
+                            {unusualTransactions.length ? (
+                                unusualTransactions.slice(0, 3).map((item) => (
+                                    <Text key={item.id} style={styles.mutedInsight}>
+                                        • {item.category}: ${asCurrency(item.amount)} on {item.date}
+                                    </Text>
+                                ))
+                            ) : (
+                                <Text style={styles.mutedInsight}>No anomalies detected yet.</Text>
+                            )}
+                            <View style={styles.trendWrap}>
+                                <Text style={styles.balanceLabel}>Monthly trend (last months)</Text>
+                                {recentMonthlyTrend.length ? (
+                                    recentMonthlyTrend.map((item) => (
+                                        <View key={item.month} style={styles.categoryRow}>
+                                            <Text style={styles.categoryName}>{item.month}</Text>
+                                            <Text style={styles.expenseText}>${asCurrency(item.total)}</Text>
+                                        </View>
+                                    ))
+                                ) : (
+                                    <Text style={styles.mutedInsight}>No monthly trend yet.</Text>
+                                )}
+                            </View>
+                        </View>
 
                         <View style={styles.summaryCard}>
                             <Text style={styles.summaryTitle}>Category breakdown</Text>
@@ -292,11 +354,14 @@ const styles = StyleSheet.create({
         marginTop: 6,
         marginBottom: 16,
         flexDirection: "row",
+        flexWrap: "wrap",
         gap: 10,
     },
-    analyticsRow: {
-        flexDirection: "row",
-        gap: 10,
+    statItem: {
+        width: "48%",
+    },
+    analyticsColumn: {
+        flexDirection: "column",
         marginBottom: 14,
     },
     summaryCard: {
@@ -323,6 +388,11 @@ const styles = StyleSheet.create({
         color: "#E4EAF2",
         marginBottom: 6,
     },
+    mutedInsight: {
+        color: "#9AA4B2",
+        marginTop: 3,
+        fontSize: 13,
+    },
     incomeText: {
         color: "#30D07F",
     },
@@ -347,6 +417,9 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: "#263241",
+    },
+    trendWrap: {
+        marginTop: 8,
     },
     categoryNameWrap: {
         flexDirection: "row",
