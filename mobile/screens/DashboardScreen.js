@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import AddTransactionForm from "../components/AddTransactionForm";
 import ExpensePieChart from "../components/ExpensePieChart";
+import IncomeExpenseBarChart from "../components/IncomeExpenseBarChart";
+import StatCard from "../components/StatCard";
 import TransactionList from "../components/TransactionList";
 import { AuthContext } from "../context/AuthContext";
 import { deleteTransaction, getAnalyticsSummary, getTransactions } from "../services/api";
@@ -128,9 +130,16 @@ export default function DashboardScreen() {
                 contentContainerStyle={styles.content}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadAll(true)} />}
             >
-                <Text style={styles.title}>Dashboard</Text>
-                <Text style={styles.subtitle}>Welcome to your Personal Finance App.</Text>
-                {user?.email ? <Text style={styles.subtitle}>Logged in as {user.email}</Text> : null}
+                <View style={styles.headerRow}>
+                    <View>
+                        <Text style={styles.title}>Dashboard</Text>
+                        <Text style={styles.subtitle}>Welcome back! Here is your financial overview.</Text>
+                        {user?.email ? <Text style={styles.subtitle}>Logged in as {user.email}</Text> : null}
+                    </View>
+                    <View style={styles.avatarCircle}>
+                        <Text style={styles.avatarText}>{user?.email?.[0]?.toUpperCase() || "U"}</Text>
+                    </View>
+                </View>
 
                 {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
 
@@ -141,6 +150,29 @@ export default function DashboardScreen() {
                     </View>
                 ) : (
                     <>
+                        <View style={styles.statsRow}>
+                            <StatCard title="Total income" value={`$${asCurrency(income)}`} accent="positive" subtitle="Income" />
+                            <StatCard title="Total expenses" value={`$${asCurrency(expenses)}`} accent="negative" subtitle="Expense" />
+                            <StatCard
+                                title="Balance"
+                                value={`${balance >= 0 ? "+" : "-"}$${asCurrency(Math.abs(balance))}`}
+                                accent={balance >= 0 ? "positive" : "negative"}
+                                subtitle="Current"
+                            />
+                        </View>
+
+                        <View style={styles.analyticsRow}>
+                            <View style={[styles.summaryCard, styles.analyticsCard]}>
+                                <Text style={styles.summaryTitle}>Expenses by category</Text>
+                                <ExpensePieChart items={expenseCategoryData} />
+                            </View>
+
+                            <View style={[styles.summaryCard, styles.analyticsCard]}>
+                                <Text style={styles.summaryTitle}>Monthly trend</Text>
+                                <IncomeExpenseBarChart income={Number(income)} expenses={Number(expenses)} />
+                            </View>
+                        </View>
+
                         <Animated.View
                             style={[
                                 styles.summaryCard,
@@ -156,11 +188,6 @@ export default function DashboardScreen() {
                                 {asCurrency(Math.abs(balance))}
                             </Text>
                         </Animated.View>
-
-                        <View style={styles.summaryCard}>
-                            <Text style={styles.summaryTitle}>Expense distribution</Text>
-                            <ExpensePieChart items={expenseCategoryData} />
-                        </View>
 
                         <View style={styles.summaryCard}>
                             <Text style={styles.summaryTitle}>Category breakdown</Text>
@@ -216,6 +243,12 @@ const styles = StyleSheet.create({
         paddingTop: 8,
         paddingBottom: 40,
     },
+    headerRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        gap: 12,
+    },
     title: {
         fontSize: 32,
         fontWeight: "700",
@@ -226,6 +259,22 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#9AA4B2",
         marginBottom: 6,
+    },
+    avatarCircle: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        borderWidth: 1.5,
+        borderColor: "#30D07F",
+        backgroundColor: "#10221B",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 2,
+    },
+    avatarText: {
+        color: "#30D07F",
+        fontWeight: "700",
+        fontSize: 18,
     },
     error: {
         color: "#FF6B6B",
@@ -239,6 +288,17 @@ const styles = StyleSheet.create({
         paddingVertical: 24,
         alignItems: "center",
     },
+    statsRow: {
+        marginTop: 6,
+        marginBottom: 16,
+        flexDirection: "row",
+        gap: 10,
+    },
+    analyticsRow: {
+        flexDirection: "row",
+        gap: 10,
+        marginBottom: 14,
+    },
     summaryCard: {
         width: "100%",
         padding: 14,
@@ -247,6 +307,10 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         marginBottom: 14,
         backgroundColor: "#141B23",
+    },
+    analyticsCard: {
+        flex: 1,
+        width: undefined,
     },
     summaryTitle: {
         fontSize: 16,

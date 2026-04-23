@@ -8,7 +8,16 @@ async function getSummary(req, res, next) {
         next(error);
     }
 }
+async function getInsights(req, res, next) {
+    try {
+        const insights = await analyticsService.getInsightsForUser(req.user.id);
+        res.status(200).json({ insights });
+    } catch (error) {
+        next(error);
+    }
+}
 
 module.exports = {
     getSummary,
+    getInsights,
 };

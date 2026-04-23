@@ -6,5 +6,6 @@ const router = Router();
 
 router.use(authenticate);
 router.get("/summary", analyticsController.getSummary);
+router.get("/insights", analyticsController.getInsights);
 
 module.exports = router;
