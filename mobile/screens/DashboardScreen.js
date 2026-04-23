@@ -1,6 +1,7 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
+    Animated,
     Button,
     RefreshControl,
     ScrollView,
@@ -22,6 +23,8 @@ export default function DashboardScreen() {
     const [mutationBusy, setMutationBusy] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateYAnim = useRef(new Animated.Value(12)).current;
 
     const loadAll = useCallback(async (isRefresh = false) => {
         try {
@@ -46,6 +49,26 @@ export default function DashboardScreen() {
     useEffect(() => {
         loadAll(false);
     }, [loadAll]);
+
+    useEffect(() => {
+        if (loading) {
+            return;
+        }
+        fadeAnim.setValue(0);
+        translateYAnim.setValue(12);
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 260,
+                useNativeDriver: true,
+            }),
+            Animated.timing(translateYAnim, {
+                toValue: 0,
+                duration: 260,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [loading, summary, fadeAnim, translateYAnim]);
 
     async function handleDelete(id) {
         try {
@@ -78,6 +101,13 @@ export default function DashboardScreen() {
     const income = summary?.totalIncome ?? 0;
     const expenses = summary?.totalExpenses ?? 0;
     const balance = summary?.currentBalance ?? 0;
+    const totalsPerCategory = Array.isArray(summary?.totalsPerCategory)
+        ? summary.totalsPerCategory
+        : [];
+
+    function asCurrency(value) {
+        return Number(value).toFixed(2);
+    }
 
     return (
         <ScrollView
@@ -98,11 +128,31 @@ export default function DashboardScreen() {
                 </View>
             ) : (
                 <>
-                    <View style={styles.summaryCard}>
+                    <Animated.View
+                        style={[
+                            styles.summaryCard,
+                            { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
+                        ]}
+                    >
                         <Text style={styles.summaryTitle}>Summary</Text>
-                        <Text style={styles.summaryLine}>Total income: {Number(income).toFixed(2)}</Text>
-                        <Text style={styles.summaryLine}>Total expenses: {Number(expenses).toFixed(2)}</Text>
-                        <Text style={styles.summaryLine}>Current balance: {Number(balance).toFixed(2)}</Text>
+                        <Text style={styles.summaryLine}>Total income: {asCurrency(income)}</Text>
+                        <Text style={styles.summaryLine}>Total expenses: {asCurrency(expenses)}</Text>
+                        <Text style={styles.balanceLabel}>Current balance</Text>
+                        <Text style={styles.balanceValue}>{asCurrency(balance)}</Text>
+                    </Animated.View>
+
+                    <View style={styles.summaryCard}>
+                        <Text style={styles.summaryTitle}>Category breakdown</Text>
+                        {totalsPerCategory.length ? (
+                            totalsPerCategory.map((item) => (
+                                <View key={item.category} style={styles.categoryRow}>
+                                    <Text style={styles.categoryName}>{item.category}</Text>
+                                    <Text style={styles.categoryValue}>{asCurrency(item.total)}</Text>
+                                </View>
+                            ))
+                        ) : (
+                            <Text style={styles.muted}>No category totals yet.</Text>
+                        )}
                     </View>
 
                     <AddTransactionForm
@@ -174,6 +224,33 @@ const styles = StyleSheet.create({
     summaryLine: {
         fontSize: 15,
         marginBottom: 4,
+    },
+    balanceLabel: {
+        marginTop: 8,
+        fontSize: 13,
+        color: "#666",
+    },
+    balanceValue: {
+        fontSize: 30,
+        fontWeight: "700",
+        color: "#1e64d9",
+        marginTop: 2,
+    },
+    categoryRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 6,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: "#ddd",
+    },
+    categoryName: {
+        fontSize: 14,
+        color: "#333",
+    },
+    categoryValue: {
+        fontSize: 14,
+        fontWeight: "600",
     },
     buttonWrapper: {
         marginTop: 16,
