@@ -137,10 +137,13 @@ export default function DashboardScreen() {
                             ]}
                         >
                             <Text style={styles.summaryTitle}>Summary</Text>
-                            <Text style={styles.summaryLine}>Total income: {asCurrency(income)}</Text>
-                            <Text style={styles.summaryLine}>Total expenses: {asCurrency(expenses)}</Text>
+                            <Text style={[styles.summaryLine, styles.incomeText]}>Total income: +{asCurrency(income)}</Text>
+                            <Text style={[styles.summaryLine, styles.expenseText]}>Total expenses: -{asCurrency(expenses)}</Text>
                             <Text style={styles.balanceLabel}>Current balance</Text>
-                            <Text style={styles.balanceValue}>{asCurrency(balance)}</Text>
+                            <Text style={[styles.balanceValue, balance >= 0 ? styles.incomeText : styles.expenseText]}>
+                                {balance >= 0 ? "+" : "-"}
+                                {asCurrency(Math.abs(balance))}
+                            </Text>
                         </Animated.View>
 
                         <View style={styles.summaryCard}>
@@ -148,7 +151,10 @@ export default function DashboardScreen() {
                             {totalsPerCategory.length ? (
                                 totalsPerCategory.map((item) => (
                                     <View key={item.category} style={styles.categoryRow}>
-                                        <Text style={styles.categoryName}>{item.category}</Text>
+                                        <View style={styles.categoryNameWrap}>
+                                            <View style={styles.categoryDot} />
+                                            <Text style={styles.categoryName}>{item.category}</Text>
+                                        </View>
                                         <Text style={styles.categoryValue}>{asCurrency(item.total)}</Text>
                                     </View>
                                 ))
@@ -234,8 +240,14 @@ const styles = StyleSheet.create({
     },
     summaryLine: {
         fontSize: 14,
-        color: "#D3DAE3",
+        color: "#E4EAF2",
         marginBottom: 6,
+    },
+    incomeText: {
+        color: "#30D07F",
+    },
+    expenseText: {
+        color: "#FF6B6B",
     },
     balanceLabel: {
         marginTop: 8,
@@ -252,13 +264,24 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingVertical: 8,
+        paddingVertical: 10,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: "#263241",
     },
+    categoryNameWrap: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+    },
+    categoryDot: {
+        width: 7,
+        height: 7,
+        borderRadius: 4,
+        backgroundColor: "#9AA4B2",
+    },
     categoryName: {
         fontSize: 14,
-        color: "#D3DAE3",
+        color: "#E4EAF2",
     },
     categoryValue: {
         fontSize: 14,

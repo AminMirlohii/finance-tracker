@@ -21,7 +21,9 @@ export default function TransactionList({ transactions, onDelete, onEdit, busy }
             {transactions.map((item) => (
                 <View key={item.id} style={styles.row}>
                     <View style={styles.rowMain}>
-                        <Text style={styles.amount}>{formatAmount(item)}</Text>
+                        <Text style={[styles.amount, item.type === "income" ? styles.income : styles.expense]}>
+                            {formatAmount(item)}
+                        </Text>
                         <Text style={styles.category}>{item.category}</Text>
                         <Text style={styles.date}>{item.date}</Text>
                     </View>
@@ -39,35 +41,49 @@ const styles = StyleSheet.create({
     container: {
         width: "100%",
         marginBottom: 24,
+        backgroundColor: "#141B23",
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "#263241",
+        paddingHorizontal: 12,
+        paddingTop: 12,
     },
     listTitle: {
         fontSize: 16,
         fontWeight: "600",
-        marginBottom: 8,
+        color: "#F5F7FA",
+        marginBottom: 6,
     },
     row: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingVertical: 10,
+        paddingVertical: 12,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#ccc",
+        borderBottomColor: "#263241",
+        marginBottom: 2,
     },
     rowMain: {
         flex: 1,
-        gap: 2,
+        gap: 3,
     },
     amount: {
         fontSize: 16,
         fontWeight: "600",
     },
+    income: {
+        color: "#30D07F",
+    },
+    expense: {
+        color: "#FF6B6B",
+    },
     category: {
         fontSize: 14,
-        color: "#333",
+        color: "#E4EAF2",
     },
     date: {
         fontSize: 12,
-        color: "#666",
+        color: "#9AA4B2",
     },
     rowActions: {
         flexDirection: "column",
@@ -79,6 +95,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     emptyText: {
-        color: "#666",
+        color: "#9AA4B2",
     },
 });

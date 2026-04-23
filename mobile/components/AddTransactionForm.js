@@ -86,6 +86,7 @@ export default function AddTransactionForm({ onSuccess, editingTransaction, onCa
             <TextInput
                 style={styles.input}
                 placeholder="Amount"
+                placeholderTextColor="#8C98A8"
                 keyboardType="decimal-pad"
                 value={amount}
                 onChangeText={setAmount}
@@ -100,11 +101,18 @@ export default function AddTransactionForm({ onSuccess, editingTransaction, onCa
                 </Pressable>
             </View>
 
-            <TextInput style={styles.input} placeholder="Category" value={category} onChangeText={setCategory} />
+            <TextInput
+                style={styles.input}
+                placeholder="Category"
+                placeholderTextColor="#8C98A8"
+                value={category}
+                onChangeText={setCategory}
+            />
 
             <TextInput
                 style={styles.input}
                 placeholder="Date (YYYY-MM-DD)"
+                placeholderTextColor="#8C98A8"
                 value={date}
                 onChangeText={setDate}
                 autoCapitalize="none"
@@ -127,24 +135,28 @@ export default function AddTransactionForm({ onSuccess, editingTransaction, onCa
 const styles = StyleSheet.create({
     card: {
         width: "100%",
-        padding: 12,
+        padding: 14,
         borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 8,
-        marginBottom: 16,
-        gap: 8,
+        borderColor: "#263241",
+        borderRadius: 12,
+        marginBottom: 18,
+        gap: 10,
+        backgroundColor: "#141B23",
     },
     heading: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: "600",
+        color: "#F5F7FA",
         marginBottom: 4,
     },
     input: {
         borderWidth: 1,
-        borderColor: "#ccc",
+        borderColor: "#314055",
         borderRadius: 8,
         paddingHorizontal: 12,
         paddingVertical: 10,
+        color: "#F5F7FA",
+        backgroundColor: "#10161E",
     },
     typeRow: {
         flexDirection: "row",
@@ -155,12 +167,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: "#ccc",
-        backgroundColor: "#f5f5f5",
+        borderColor: "#314055",
+        backgroundColor: "#7a7a7a",
     },
     typeChipActive: {
-        borderColor: "#1e64d9",
-        backgroundColor: "#e8f0fe",
+        borderColor: "#30D07F",
+        backgroundColor: "#1bfa90",
     },
     typeChipText: {
         fontWeight: "500",
