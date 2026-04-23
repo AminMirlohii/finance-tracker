@@ -28,4 +28,25 @@ export async function registerRequest(payload) {
     return response.data;
 }
 
+export async function getTransactions() {
+    const response = await api.get("/transactions");
+    return response.data;
+}
+export async function createTransaction(payload) {
+    const response = await api.post("/transactions", payload);
+    return response.data;
+}
+export async function updateTransaction(id, payload) {
+    const response = await api.put(`/transactions/${id}`, payload);
+    return response.data;
+}
+export async function deleteTransaction(id) {
+    const response = await api.delete(`/transactions/${id}`);
+    return response.data;
+}
+export async function getAnalyticsSummary() {
+    const response = await api.get("/analytics/summary");
+    return response.data;
+}
+
 export default api;
